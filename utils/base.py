@@ -18,7 +18,7 @@ class Base(ABC):
             self.base_url = self.BASE_URL + filters
         elif isinstance(filters, list):
             self.base_url = self.BASE_URL + ','.join(filters)
-        
+            
     def storage_location(self): 
         return self.BASE_STORAGE_PATH + self.file_name
     
