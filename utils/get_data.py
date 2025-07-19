@@ -36,7 +36,7 @@ class GetCountryLanguage(Base):
                 for code, _ in country['languages'].items():
                     flattened_data.append({
                         'country_name': country['name']['common'],
-                        'code': code,
+                        'language_code': code,
                     })
 
             df = pd.json_normalize(flattened_data)
@@ -52,7 +52,6 @@ class GetCurrencies(Base):
                 for code, currency in country['currencies'].items():
                     flattened_data.append({
                         'code': code,
-                        'name': currency['name'],
                         'symbol': currency.get('symbol', '')
                     })
 
