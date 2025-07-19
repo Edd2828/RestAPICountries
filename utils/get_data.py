@@ -52,11 +52,14 @@ class GetCurrencies(Base):
                 for code, currency in country['currencies'].items():
                     flattened_data.append({
                         'code': code,
+                        'name': currency['name'],
                         'symbol': currency.get('symbol', '')
                     })
 
             df = pd.json_normalize(flattened_data)\
                 .drop_duplicates()
+            
+            df = df.groupby('code', as_index=False).agg({'name': ', '.join, 'symbol': ', '.join})
 
             return df
         
@@ -75,6 +78,8 @@ class GetLanguages(Base):
 
             df = pd.json_normalize(flattened_data)\
                 .drop_duplicates()
+
+            df = df.groupby('code', as_index=False).agg({'name': ', '.join})
 
             return df
 

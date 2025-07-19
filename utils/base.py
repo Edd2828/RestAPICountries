@@ -50,7 +50,7 @@ class Base(ABC):
 class PostgresBase():
 
     BASE_STORAGE_PATH = 'C:/Edward/RestAPICountries/csv_exports/'
-    BASE_SQL_FOLDER = 'C:/Edward/RestAPICountries/sql/raw/'
+    BASE_SQL_FOLDER = 'C:/Edward/RestAPICountries/sql/staging/'
 
     connection_details = get_connection_details()
 
@@ -59,7 +59,7 @@ class PostgresBase():
     USER=connection_details['user']
     PASSWORD=connection_details['password']
 
-    def __init__(self, table_name):
+    def __init__(self, table_name: str | None=None):
         self.table_name = table_name
 
     @classmethod
@@ -81,8 +81,11 @@ class PostgresBase():
             sql_commands = file.read().replace('<csv_file_path>', self.BASE_STORAGE_PATH + self.table_name + '.csv')
         return sql_commands
     
-    def execute_sql(self):
-        sql_query = self.read_sql_file()
+    def execute_sql(self, query=None):
+        if not query:
+            sql_query = self.read_sql_file()
+        else:
+            sql_query = query
 
         connection, cursor = self.connect()
         try:

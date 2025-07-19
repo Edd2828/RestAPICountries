@@ -43,8 +43,11 @@ def run_sql_import():
 
 if __name__ == "__main__":
 
-    # Rest API from source
+    # # Rest API from source
     run_api_etl()
 
-    # Import to Postgres
+    create_schema = PostgresBase('create_schema')
+    create_schema.execute_sql('CREATE SCHEMA IF NOT EXISTS staging;')
+
+    # # Import to Postgres
     run_sql_import()
