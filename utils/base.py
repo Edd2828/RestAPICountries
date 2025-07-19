@@ -1,4 +1,5 @@
 import requests
+import psycopg2
 
 from abc import ABC, abstractmethod
 from typing import List
@@ -44,19 +45,45 @@ class Base(ABC):
         df.to_csv(self.storage_location() + '.csv', index_label='id')
 
 
+class PostgresBase():
 
-if __name__ == "__main__":
-    class GetCountry(Base):
-        def transform_data(self):
-            df = pd.json_normalize(self.get_response())
-            df = df[['name.common', 'name.official', 'population']]\
-                .rename(columns={'name.common': 'common_name', 'name.official': 'official_name'})\
-                .sort_values(by='common_name')\
-                .reset_index(drop=True)
-            df.index = df.index + 1
-            return df
-    extract = GetCountry(file_name='countries.csv', filters=['name', 'population'])
-    extract.save_to_csv()
+    BASE_SQL_FOLDER = 'C:/Edward/RestAPICountries/sql/raw/'
+
+    def __init__(self, host, database, user, password):
+        self.host = host
+        self.database = database
+        self.user = user
+        self.password = password
+
+    def connect(self):
+
+        connection = psycopg2.connect(
+            host=self.host,
+            database=self.database,
+            user=self.user,
+            password=self.password
+        )
+        cursor = connection.cursor()
+
+        return connection, cursor
+    
+    def read_sql_file(self, file_name):
+        file_path = self.BASE_SQL_FOLDER + file_name + '.sql'
+        with open(file_path, 'r') as file:
+            sql_commands = file.read()
+        return sql_commands
+    
+    def execute_sql(self, sql_query):
+        connection, cursor = self.connect()
+        try:
+            cursor.execute(sql_query)
+            connection.commit()  # Commit the changes to the database
+        except Exception as e:
+            print("Error while executing SQL", e)
+        finally:
+            cursor.close()
+            connection.close()
+
 
 if __name__ == "__main__":
     pass  # This is just a placeholder to allow the module to be run directly for testing purposes.

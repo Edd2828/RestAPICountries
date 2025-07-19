@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS currencies (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(3) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    symbol VARCHAR(10)
+);

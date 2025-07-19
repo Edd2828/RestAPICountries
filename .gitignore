@@ -1,5 +1,8 @@
 .venv
 __pycache__
 csv_exports/*
-test.py
+utils/test.py
 utils/Archive
+utils/connection_details.py
+sql/test.sql
+test.py
