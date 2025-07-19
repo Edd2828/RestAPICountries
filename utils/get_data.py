@@ -1,0 +1,83 @@
+import pandas as pd
+
+from .base import Base
+
+
+class GetCountries(Base):
+        def transform_data(self):
+            df = pd.json_normalize(self.get_response())
+            df = df[['name.common', 'name.official', 'population']]\
+                .rename(columns={'name.common': 'common_name', 'name.official': 'official_name'})
+            return df
+
+class GetCountryCurrency(Base):
+        def transform_data(self):
+            data = self.get_response()
+
+            flattened_data = []
+
+            for country in data:
+                for code, currency in country['currencies'].items():
+                    flattened_data.append({
+                        'country_name': country['name']['common'],
+                        'currency_code': code
+                    })
+
+            df = pd.json_normalize(flattened_data)
+            return df
+
+class GetCountryLanguage(Base):
+        def transform_data(self):
+            data = self.get_response()
+
+            flattened_data = []
+
+            for country in data:
+                for code, _ in country['languages'].items():
+                    flattened_data.append({
+                        'country_name': country['name']['common'],
+                        'code': code,
+                    })
+
+            df = pd.json_normalize(flattened_data)
+            return df
+
+class GetCurrencies(Base):
+        def transform_data(self):
+            data = self.get_response()
+
+            flattened_data = []
+
+            for country in data:
+                for code, currency in country['currencies'].items():
+                    flattened_data.append({
+                        'code': code,
+                        'name': currency['name'],
+                        'symbol': currency.get('symbol', '')
+                    })
+
+            df = pd.json_normalize(flattened_data)\
+                .drop_duplicates()
+
+            return df
+        
+class GetLanguages(Base):
+        def transform_data(self):
+            data = self.get_response()
+
+            flattened_data = []
+
+            for country in data:
+                for code, language in country['languages'].items():
+                    flattened_data.append({
+                        'code': code,
+                        'name': language,
+                    })
+
+            df = pd.json_normalize(flattened_data)\
+                .drop_duplicates()
+
+            return df
+
+extract = GetCountries(sort_data='common_name', file_name='countries', filters=['name', 'population'])
+extract.save_to_csv()
