@@ -57,3 +57,6 @@ if __name__ == "__main__":
             return df
     extract = GetCountry(file_name='countries.csv', filters=['name', 'population'])
     extract.save_to_csv()
+
+if __name__ == "__main__":
+    pass  # This is just a placeholder to allow the module to be run directly for testing purposes.

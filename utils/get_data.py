@@ -79,5 +79,5 @@ class GetLanguages(Base):
 
             return df
 
-extract = GetCountries(sort_data='common_name', file_name='countries', filters=['name', 'population'])
-extract.save_to_csv()
+if __name__ == "__main__":
+    pass  # This is just a placeholder to allow the module to be run directly for testing purposes.
