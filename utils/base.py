@@ -50,7 +50,8 @@ class Base(ABC):
 class PostgresBase():
 
     BASE_STORAGE_PATH = 'C:/Edward/RestAPICountries/csv_exports/'
-    BASE_SQL_FOLDER = 'C:/Edward/RestAPICountries/sql/staging/'
+    STAGING_SQL_FOLDER = 'C:/Edward/RestAPICountries/sql/staging/'
+    WAREHOUSE_SQL_FOLDER = 'C:/Edward/RestAPICountries/sql/warehouse/'
 
     connection_details = get_connection_details()
 
@@ -59,7 +60,8 @@ class PostgresBase():
     USER=connection_details['user']
     PASSWORD=connection_details['password']
 
-    def __init__(self, table_name: str | None=None):
+    def __init__(self, etl_stage, table_name: str | None=None):
+        self.etl_stage = etl_stage
         self.table_name = table_name
 
     @classmethod
@@ -75,15 +77,32 @@ class PostgresBase():
 
         return connection, cursor
     
-    def read_sql_file(self):
-        file_path = self.BASE_SQL_FOLDER + self.table_name + '.sql'
+    def staging_read_sql_file(self):
+        file_path = self.STAGING_SQL_FOLDER + self.table_name + '.sql'
         with open(file_path, 'r') as file:
             sql_commands = file.read().replace('<csv_file_path>', self.BASE_STORAGE_PATH + self.table_name + '.csv')
         return sql_commands
     
+    def warehouse_read_sql_file(self):
+        file_path = self.WAREHOUSE_SQL_FOLDER + self.table_name + '.sql'
+        with open(file_path, 'r') as file:
+            sql_commands = file.read()
+        return sql_commands
+    
+    def read_staging_clear_down(self):
+        file_path = self.STAGING_SQL_FOLDER + 'clear_down.sql'
+        with open(file_path, 'r') as file:
+            sql_commands = file.read()
+        return sql_commands
+
     def execute_sql(self, query=None):
         if not query:
-            sql_query = self.read_sql_file()
+            if self.etl_stage == 'staging':
+                sql_query = self.staging_read_sql_file()
+            elif self.etl_stage == 'warehouse':
+                sql_query = self.warehouse_read_sql_file()
+            else:
+                raise ValueError("Invalid ETL stage specified. Use 'staging' or 'warehouse'.")
         else:
             sql_query = query
 

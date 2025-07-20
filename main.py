@@ -25,17 +25,17 @@ def run_api_etl():
 
 
 # import to postgres
-def create_sql_extractor(class_name, table_name):
-    return class_name(table_name)
+def create_sql_extractor(class_name, etl_stage, table_name):
+    return class_name(etl_stage, table_name)
 
 def run_sql_extraction(sql_extractor, table_name):
     sql_extractor.execute_sql()
-    print(f"Import to postgres: {table_name}")
+    print(f"Import to postgres: {sql_extractor.etl_stage} {table_name}")
 
-def run_sql_import():
+def run_sql_import(etl_stage):
     # Execute in parallel
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [executor.submit(run_sql_extraction, create_sql_extractor(PostgresBase, etl['file_name']), etl['file_name']) for etl in etls_config]
+        futures = [executor.submit(run_sql_extraction, create_sql_extractor(PostgresBase, etl_stage, etl['file_name']), etl['file_name']) for etl in etls_config]
         
         # Wait for all futures to complete
         for future in concurrent.futures.as_completed(futures):
@@ -43,11 +43,21 @@ def run_sql_import():
 
 if __name__ == "__main__":
 
-    # # Rest API from source
+    # Rest API from source
     run_api_etl()
 
-    create_schema = PostgresBase('create_schema')
+    create_schema = PostgresBase('staging', 'create_schema')
     create_schema.execute_sql('CREATE SCHEMA IF NOT EXISTS staging;')
 
-    # # Import to Postgres
-    run_sql_import()
+    # Import to Staging Tables
+    run_sql_import('staging')
+
+    create_schema = PostgresBase('warehouse', 'create_schema')
+    create_schema.execute_sql('CREATE SCHEMA IF NOT EXISTS warehouse;')
+
+    # Upsert to warehouse Tables
+    run_sql_import('warehouse')
+
+    # staging clear down
+    staging_clear_down = PostgresBase('staging', 'staging_clear_down')
+    staging_clear_down.execute_sql(staging_clear_down.read_staging_clear_down())
