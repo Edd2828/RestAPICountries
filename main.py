@@ -12,7 +12,7 @@ def create_extractor(class_name, sort_data, file_name, filters):
 
 def run_extraction(extractor, file_name):
     extractor.save_to_csv()
-    print(f"Extraction from api completed: {file_name}")
+    print(f"API Extraction completed: {file_name}")
 
 def run_api_etl():
     # Execute in parallel
@@ -30,7 +30,7 @@ def create_sql_extractor(class_name, etl_stage, table_name):
 
 def run_sql_extraction(sql_extractor, table_name):
     sql_extractor.execute_sql()
-    print(f"Import to postgres: {sql_extractor.etl_stage} {table_name}")
+    print(f"Import to postgres {sql_extractor.etl_stage} {table_name}")
 
 def run_sql_import(etl_stage):
     # Execute in parallel
@@ -44,18 +44,23 @@ def run_sql_import(etl_stage):
 if __name__ == "__main__":
 
     # Rest API from source
+    print("1. Extracting API data to csv...")
     run_api_etl()
 
     create_schema = PostgresBase('staging', 'create_schema')
     create_schema.execute_sql('CREATE SCHEMA IF NOT EXISTS staging;')
+    print()
 
     # Import to Staging Tables
+    print("2. COPY csv files to Staging...")
     run_sql_import('staging')
 
     create_schema = PostgresBase('warehouse', 'create_schema')
     create_schema.execute_sql('CREATE SCHEMA IF NOT EXISTS warehouse;')
+    print()
 
     # Upsert to warehouse Tables
+    print("3. Merging from Staging to warehouse...")
     run_sql_import('warehouse')
 
     # staging clear down
