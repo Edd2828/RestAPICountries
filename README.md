@@ -9,6 +9,7 @@ Requirements:
 Python dependancies:
 - psycopg2
 - pandas
+- pydantic
 
 Instructions:
 1. Create Countries Database in local postgres
