@@ -5,13 +5,21 @@ import pandas as pd
 
 from abc import ABC, abstractmethod
 from typing import List
+from pathlib import Path
 
 from .connection_details import get_connection_details
 
 
+class PathLocations():
+    BASE_PATH = Path().cwd()
+    BASE_STORAGE_PATH = BASE_PATH / 'csv_exports'
+    STAGING_SQL_FOLDER = BASE_PATH / 'sql' / 'staging'
+    WAREHOUSE_SQL_FOLDER = BASE_PATH / 'sql' / 'warehouse'
+
+
 class Base(ABC):
 
-    BASE_STORAGE_PATH = "C:/Edward/RestAPICountries/csv_exports/"
+    BASE_STORAGE_PATH = PathLocations().BASE_STORAGE_PATH.as_posix() + '/'
     BASE_URL = "https://restcountries.com/v3.1/all?fields="
 
     def __init__(self, sort_data, file_name, filters=str | List[str]):
@@ -49,9 +57,10 @@ class Base(ABC):
 
 class PostgresBase():
 
-    BASE_STORAGE_PATH = 'C:/Edward/RestAPICountries/csv_exports/'
-    STAGING_SQL_FOLDER = 'C:/Edward/RestAPICountries/sql/staging/'
-    WAREHOUSE_SQL_FOLDER = 'C:/Edward/RestAPICountries/sql/warehouse/'
+    PATH_LOCATIONS = PathLocations()
+    BASE_STORAGE_PATH = PATH_LOCATIONS.BASE_STORAGE_PATH.as_posix() + '/'
+    STAGING_SQL_FOLDER = PATH_LOCATIONS.STAGING_SQL_FOLDER.as_posix() + '/'
+    WAREHOUSE_SQL_FOLDER = PATH_LOCATIONS.WAREHOUSE_SQL_FOLDER.as_posix() + '/'
 
     connection_details = get_connection_details()
 
@@ -118,8 +127,4 @@ class PostgresBase():
 
 
 if __name__ == "__main__":
-    pass  # This is just a placeholder to allow the module to be run directly for testing purposes.
-
-    # print(get_connection_details())
-    # test = PostgresBase('countries')
-    # test.execute_sql()
+    pass
