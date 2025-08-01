@@ -6,9 +6,7 @@ from .data_validation import CountryDataValidation
 
 class GetCountries(Base):
         def transform_data(self):
-            response = self.get_response()
-
-            data = CountryDataValidation([])      
+            data = CountryDataValidation(self.get_response())      
 
             df = pd.json_normalize(data.model_dump())
             df = df[['name.common', 'name.official', 'population']]\
@@ -89,4 +87,4 @@ class GetLanguages(Base):
             return df
 
 if __name__ == "__main__":
-    pass  # This is just a placeholder to allow the module to be run directly for testing purposes.
+    pass
