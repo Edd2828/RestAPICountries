@@ -1,12 +1,18 @@
 import pandas as pd
 
+from pydantic import ValidationError
+
 from .base import Base
 from .data_validation import CountryDataValidation
 
 
 class GetCountries(Base):
         def transform_data(self):
-            data = CountryDataValidation(self.get_response())      
+            try:
+                data = CountryDataValidation(self.get_response())
+            except ValidationError as e:
+                data = CountryDataValidation([])
+                print(e) # instead of printing an audit log file could be created and stored
 
             df = pd.json_normalize(data.model_dump())
             df = df[['name.common', 'name.official', 'population']]\
