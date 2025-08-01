@@ -1,11 +1,16 @@
 import pandas as pd
 
 from .base import Base
+from .data_validation import CountryDataValidation
 
 
 class GetCountries(Base):
         def transform_data(self):
-            df = pd.json_normalize(self.get_response())
+            response = self.get_response()
+
+            data = CountryDataValidation([])      
+
+            df = pd.json_normalize(data.model_dump())
             df = df[['name.common', 'name.official', 'population']]\
                 .rename(columns={'name.common': 'common_name', 'name.official': 'official_name'})
             return df
