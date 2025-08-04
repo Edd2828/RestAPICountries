@@ -24,3 +24,5 @@ class CountryDataValidation(RootModel):
 
 if __name__ == '__main__':
     pass
+    # sample country detail
+    # {'name': {'common': 'Azerbaijan', 'official': 'Republic of Azerbaijan'}, 'population': 10000000}
